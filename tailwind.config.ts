@@ -8,6 +8,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        'solo-dark': '#190019',
+        'solo-purple': '#2B124C',
+        'solo-accent': '#522B5B',
+        'solo-highlight': '#854F6C',
+        'solo-light': '#DFB6B2',
+        'solo-beige': '#FBE4D8',
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
