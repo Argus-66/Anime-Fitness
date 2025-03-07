@@ -14,6 +14,17 @@ const quotes = [
   "The only bad workout is the one that didn't happen."
 ];
 
+// Particle configuration
+const PARTICLE_COUNT = 50;
+const PARTICLE_COLORS = [
+  'bg-solo-purple/30',
+  'bg-solo-accent/30',
+  'bg-solo-light/20',
+  'bg-purple-400/20',
+];
+
+const PARTICLE_SIZES = ['w-1 h-1', 'w-2 h-2', 'w-3 h-3'];
+
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [quote, setQuote] = useState('');
@@ -29,33 +40,55 @@ export default function DashboardPage() {
     setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
   }, [router]);
 
+  const generateRandomPath = () => {
+    const startX = Math.random() * window.innerWidth;
+    const endX = startX + (Math.random() * 400 - 200); // Random drift left or right
+    return [startX, endX];
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-solo-dark via-[#1a1025] to-[#0d0a12] p-8 relative overflow-hidden">
-      {/* Floating Particles */}
+      {/* Enhanced Floating Particles */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-solo-purple/20 rounded-full"
-            animate={{
-              y: [-20, window.innerHeight],
-              x: Math.random() * 20 - 10,
-              opacity: [0, 1, 0]
-            }}
-            transition={{
-              duration: Math.random() * 5 + 5,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `-20px`
-            }}
-          />
-        ))}
+        {[...Array(PARTICLE_COUNT)].map((_, i) => {
+          const size = PARTICLE_SIZES[Math.floor(Math.random() * PARTICLE_SIZES.length)];
+          const color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+          const duration = Math.random() * 10 + 10; // 10-20 seconds
+          const delay = Math.random() * -20;
+          const [startX, endX] = generateRandomPath();
+          
+          return (
+            <motion.div
+              key={i}
+              className={`absolute ${size} ${color} rounded-full 
+                shadow-[0_0_10px_rgba(82,43,91,0.5)] backdrop-blur-sm`}
+              animate={{
+                y: [-20, window.innerHeight + 20],
+                x: [startX, endX],
+                opacity: [0, 0.8, 0],
+                scale: [1, Math.random() * 1.5 + 0.5, 1],
+                rotate: [0, Math.random() * 360]
+              }}
+              transition={{
+                duration: duration,
+                repeat: Infinity,
+                ease: "linear",
+                delay: delay,
+                times: [0, 0.8, 1]
+              }}
+              style={{
+                filter: 'blur(1px)'
+              }}
+            />
+          );
+        })}
       </div>
+
+      {/* Additional ambient glow effects */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-solo-purple/10 rounded-full filter blur-[100px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-solo-accent/10 rounded-full filter blur-[100px] animate-pulse" />
 
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}

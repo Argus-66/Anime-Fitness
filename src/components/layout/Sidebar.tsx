@@ -1,20 +1,30 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getUser } from '@/lib/auth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaHome, FaTrophy, FaDumbbell, FaCalendarAlt, FaMedal, FaUser } from 'react-icons/fa';
 
-const navItems = [
-  { name: 'Dashboard', icon: FaHome, href: '/dashboard' },
-  { name: 'Leaderboard', icon: FaTrophy, href: '/dashboard/leaderboard' },
-  { name: 'Workouts', icon: FaDumbbell, href: '/dashboard/workouts' },
-  { name: 'Training Plans', icon: FaCalendarAlt, href: '/dashboard/training' },
-  { name: 'Achievements', icon: FaMedal, href: '/dashboard/achievements' },
-  { name: 'Profile', icon: FaUser, href: '/dashboard/profile' },
-];
-
 export default function Sidebar({ className = '' }: { className?: string }) {
+  const [username, setUsername] = useState<string | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const user = getUser();
+    if (user) {
+      setUsername(user.username);
+    }
+  }, []);
+
+  const navItems = [
+    { name: 'Dashboard', icon: FaHome, href: '/dashboard' },
+    { name: 'Leaderboard', icon: FaTrophy, href: '/dashboard/leaderboard' },
+    { name: 'Workouts', icon: FaDumbbell, href: '/dashboard/workouts' },
+    { name: 'Training Plans', icon: FaCalendarAlt, href: '/dashboard/training' },
+    { name: 'Achievements', icon: FaMedal, href: '/dashboard/achievements' },
+    { name: 'Profile', icon: FaUser, href: username ? `/${username}` : '/login' },
+  ];
 
   return (
     <div className={`w-64 bg-solo-dark/95 backdrop-blur-md h-screen flex flex-col ${className}`}>

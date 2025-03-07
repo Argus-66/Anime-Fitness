@@ -1,28 +1,46 @@
 export interface User {
-  _id?: string;
+  id: string;
   username: string;
   email: string;
-  password: string;
-  age: number;
-  gender: 'male' | 'female' | 'other';
-  height: number;
-  weight: number;
-  joinedDate: Date;
-  lastLogin: Date;
-  theme: string;
-  coins: number;
+  bio: string;
+  createdAt: string;
+  details: {
+    height: number;
+    weight: number;
+    age: number;
+  };
   progression: {
     level: number;
     xp: number;
     streak: number;
+  };
+  stats: {
+    workoutsCompleted: number;
+    bestStreak: number;
   };
   skills: {
     strength: number;
     agility: number;
     endurance: number;
   };
-  workouts: string[];
-  badges: string[];
-  friends: string[];
-  cardsOwned: string[];
+  friends: Array<{
+    username: string;
+    level: number;
+  }>;
+  recentWorkouts: Array<{
+    date: string;
+    name: string;
+    duration: number;
+    xpGained: number;
+  }>;
+  achievements: Array<{
+    title: string;
+    description: string;
+    dateEarned: string;
+  }>;
+  activityFeed?: Array<{
+    date: string;
+    description: string;
+  }>;
+  workouts: any[]; // Define proper workout type later
 }
