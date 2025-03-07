@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { getUser, setUser } from '@/lib/auth';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,13 @@ export default function LoginPage() {
   });
 
   const router = useRouter();
+  
+  useEffect(() => {
+    const user = getUser();
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +39,8 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Successful login
+      // Save user data
+      setUser(data.user);
       router.push('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
