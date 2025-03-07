@@ -1,0 +1,230 @@
+help me create a next js based project 
+it will be a anime themed fitness app
+at first we are only gonna work on 1 theme... which is Solo Leveling...
+what does theme do... well the anime theme will be everything...
+the look of the website, UI will change to the theme...
+the pop up messages will change to the theme:
+Each theme has its own vibe of motivational messages that pop up based on actions like:
+Breaking streaks 
+Completing workouts 
+Reaching milestones etc...
+
+for the current theme, Solo Leveling, the UI will be:
+#190019
+#2B124C
+#522B5B
+#854F6C
+#DFB6B2
+#FBE4D8
+
+the theme doesnt work in the landing page...
+it will only start after the user logs in...
+
+
+the main goal is to make the user stay on the app for a long time and have it like a game!
+like when user completes a workout, or a mission/quest, have longer streaks he will get coins
+i will tell you later what to do with the coins...
+
+lets talk about the pages
+landing page
+then
+login page
+register page
+we will use MongoDB Atlas to store user datas!
+for register we will ask:
+username (unique)
+email (unique)
+password
+confirm password
+age
+gender
+height
+weight
+
+then data will be stored
+but in addition in that users data we need to store the following data:
+joined date
+lastlogin for tracking streak ig
+theme
+coins set to 0 at start
+
+prgression (this will have) [
+level set to 1 at start
+xp set to 0 at start
+streak set to 0 at start
+]
+
+workouts[
+    bassed on what the user choose or adds later
+]
+
+skills [ 
+strength set to 1 at start
+agility set to 1 at start
+endurance set to 1 at start
+]
+
+badges
+friends
+cardsOwned (this is a feuture that will be added later, its the usage of coins...)
+
+and more if u think something is needed
+
+
+
+and then user will login
+when he logins once it wont take him to landing page when he opens the website again it will save that the user has already logged in and will take him inside the app!
+
+
+
+so whats inside the app?
+well
+
+it will first be a dashboard page
+btw we will use a fixed sidebar for all pages inside the app (for big screen that is pc and laptops it will be sidebar, and for medium which is tablets it will also be a sidebar, but! for small screen which is mobile it will be bottom bar and if there isnt enough space for all options it will be slidable! like slide to access all features)
+
+in sidebar it will have:(same with bottom bar)
+Dashboard
+Leaderboard
+Workouts
+Training Plans
+Achivements & Badges
+Profile
+
+
+in:
+Dashboard (🏠)
+
+Welcome Header
+styled greeting.
+Show username, current streak, and today's XP gain.
+Random encouragement message from the theme.
+
+Progress Overview
+Level with XP bar (visual progress).
+Streak counter
+Coins balance.
+Quick summary of skills:
+Strength:
+Agility: 
+Endurance: 
+
+Workout Status
+Today's Workout Plan
+Daily quest (if any)(extra XP and coins for completing)
+
+Leaderboard (🏆)
+Global Leaderboard
+Weekly & Monthly Top Performers
+Friends & Community Rankings
+Special Challenges & Events Leaderboard 
+
+
+
+Workouts (💪)
+
+User's daily & custom workout routines.
+here user can add workouts, and they will be saved in the database (like the extra workouts that werent in their daily plan)
+like what ever they did today, they can add it here
+and update the daily progress like if they have doen a part of the workout today, they can add it here or even if completed the whole workout they can add it here (this shuld be on top)
+
+
+Training Plans (📅)
+
+Set up and follow structured training routines.
+here user will select his daily workout plan like select the exercises and the sets and reps and the time and etc...
+
+
+
+Achievements & Badges (🎖️)
+
+Unlock titles, earn rewards, and track fitness milestones.
+Special Badges for Unique Feats
+Lifetime Stats & Best Records
+
+
+Profile (👤)
+
+User's settings, customization, and account management.
+change theme (when we add more themes)
+change profile pic... it will be set to default at start and user can change it later
+
+Friends List 
+Add friends (through username)
+Account Settings (Change password, manage data, delete account, etc.)
+Logout
+
+
+
+
+
+now lets talk about the landing page
+it should look the best! so users feel attracted and want to use 
+ofc it will have login and register/join button
+the page should have a nice and clean design
+Top Section:
+i think its better to divide the top (visible when the page is opened) should be divided into 2 parts
+1. left side:
+    inspiring messages and sub headings 
+    "Get Started" (leads to Register)
+    "Learn More" (scrolls down to features)
+    "Get Started" (leads to Register)
+    "Learn More" (scrolls down to features)
+    Maybe throw in animated encouragement text cycling through: "Rise..." → "Conquer..." → "Evolve..."
+
+2. right side:
+    Right side:
+
+    A main image in the center.
+    Two images on the sides with very low visibility.
+    Two more images behind those, even more shadowy and barely visible.
+
+    There will be multiple images (around 5-10), each representing a theme.
+    The main image will start with Solo Leveling.
+
+    The images will rotate automatically.
+    Below the main image, there will be a small box that's half over the main image and half outside of it.
+
+    This box will show details based on which image is in the main position:
+
+    If it's Solo Leveling, it will say:
+    Currently Featuring:
+    Solo Leveling
+
+    For other themes, it will say:
+    Upcoming!
+    [Theme Name]
+
+    The box itself stays fixed and only its content changes based on the current main image.
+
+Below Top Section:
+
+About the Project
+Short and punchy intro to what the website does.
+
+
+
+and below this we will have :
+Features (maybe in 3-4 columns with icons):
+Themed Workouts – Inspired by iconic anime characters.
+Level Up System – Gain XP and improve your skills.
+Card Collection – Unlock and collect anime-themed cards.
+Leaderboards – Compete with others and climb the ranks.
+
+
+
+
+below that 
+☕ Buy Me a Coffee
+A simple centered section with a "Support the Project" button linked to your Buy Me a Coffee page or Ko-Fi.
+(make it look good so they would want to support the project)
+
+
+
+Footer:
+In a minimal dark style with my links:
+
+GitHub
+LinkedIn
+Instagram
+Twitter
