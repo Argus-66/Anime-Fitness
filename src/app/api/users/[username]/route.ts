@@ -1,51 +1,63 @@
 import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth';
+import { connectDB } from '@/lib/db';
+import User from '@/models/User';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { username: string } }
-) {
+export async function GET(req: Request, { params }: { params: { username: string } }) {
   try {
-    // TODO: Replace with database query
-    const mockUser = {
-      id: '1',
-      username: params.username,
-      email: 'user@example.com',
-      createdAt: new Date().toISOString(),
-      progression: {
-        level: 1,
-        xp: 0,
-        streak: 0,
-      },
-      stats: {
-        workoutsCompleted: 0,
-        bestStreak: 0,
-      },
-      skills: {
-        strength: 1,
-        agility: 1,
-        endurance: 1,
-      },
-      achievements: [
-        {
-          title: 'First Login',
-          description: 'Started your fitness journey',
-          dateEarned: new Date().toISOString(),
-        },
-      ],
-      activityFeed: [
-        {
-          date: new Date().toISOString(),
-          description: 'Joined Fitness Quest',
-        },
-      ],
-      workouts: [],
+    await connectDB();
+    
+    const user = await User.findOne({ username: params.username })
+      .select('-password')
+      .lean();
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Type assertion to handle mongoose document type
+    const userData = user as Record<string, any>;
+    
+    const processedUser = {
+      ...userData,
+      stats: userData.stats || { workoutsCompleted: 0, bestStreak: 0 },
+      progression: userData.progression || { level: 1, xp: 0, streak: 0 },
+      details: userData.details || { height: 0, weight: 0, age: 0 }
     };
 
-    return NextResponse.json(mockUser);
+    return NextResponse.json(processedUser);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request, { params }: { params: { username: string } }) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    
+    const updatedUser = await User.findOneAndUpdate(
+      { username: params.username },
+      { 
+        $set: {
+          bio: body.bio,
+          details: {
+            age: parseInt(body.age) || 0,
+            height: parseInt(body.height) || 0,
+            weight: parseInt(body.weight) || 0
+          }
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch user profile' },
+      { error: 'Failed to update user' },
       { status: 500 }
     );
   }

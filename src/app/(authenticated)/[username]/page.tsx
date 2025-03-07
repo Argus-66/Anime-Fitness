@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FaDumbbell, FaFire, FaTrophy, FaChartLine, FaUserFriends, FaSignOutAlt, FaEdit } from 'react-icons/fa';
+import { FaDumbbell, FaFire, FaTrophy, FaChartLine, FaUserFriends, FaSignOutAlt, FaEdit, FaUserPlus, FaUserMinus } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { getUser, clearUser } from '@/lib/auth';
 import type { User } from '@/types/user';
+import UserHeader from '@/components/profile/UserHeader';
 
 export default function ProfilePage() {
   const params = useParams();
@@ -19,6 +20,10 @@ export default function ProfilePage() {
     age: 0
   });
   const [friendUsername, setFriendUsername] = useState('');
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [searchUsername, setSearchUsername] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ username: string; level: number }>>([]);
 
   // Calculate XP progress to next level
   const calculateXpProgress = (level: number, currentXp: number) => {
@@ -37,9 +42,56 @@ export default function ProfilePage() {
     // Add friend logic here
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setEditForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
   const handleSaveDetails = async () => {
-    // Save user details logic here
-    setIsEditing(false);
+    try {
+      const response = await fetch(`/api/users/${user?.username}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+      
+      if (!response.ok) throw new Error('Failed to update profile');
+      
+      const updatedUser = await response.json();
+      setUser(updatedUser);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to save details:', error);
+    }
+  };
+
+  const handleSearchUser = async () => {
+    try {
+      const response = await fetch(`/api/users/search?username=${searchUsername}`);
+      const data = await response.json();
+      setSearchResults(data.users);
+    } catch (error) {
+      console.error('Failed to search users:', error);
+    }
+  };
+
+  const handleRemoveFriend = async (friendUsername: string) => {
+    try {
+      const response = await fetch(`/api/users/${user?.username}/friends/${friendUsername}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to remove friend');
+      
+      // Update local state
+      setUser(prev => prev ? {
+        ...prev,
+        friends: prev.friends.filter(f => f.username !== friendUsername)
+      } : null);
+    } catch (error) {
+      console.error('Failed to remove friend:', error);
+    }
   };
 
   useEffect(() => {
@@ -56,32 +108,46 @@ export default function ProfilePage() {
     fetchUser();
   }, [params.username]);
 
+  useEffect(() => {
+    if (user) {
+      setEditForm({
+        bio: user.bio || '',
+        height: user.details?.height || 0,
+        weight: user.details?.weight || 0,
+        age: user.details?.age || 0
+      });
+    }
+  }, [user]);
+
   if (!user) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header with Edit/Logout */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center space-x-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-solo-accent to-solo-purple flex items-center justify-center">
-            <span className="text-4xl font-bold text-white">{user.username[0].toUpperCase()}</span>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white">{user.username}</h1>
-            <p className="text-solo-light">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
-            {!isEditing && <p className="text-solo-light mt-2">{user.bio || 'No bio yet'}</p>}
-          </div>
-        </div>
-        <div className="flex space-x-4">
-          <button onClick={() => setIsEditing(!isEditing)} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-solo-purple/20 text-solo-light hover:bg-solo-purple/30">
-            <FaEdit /> <span>Edit Profile</span>
-          </button>
-          <button onClick={handleLogout} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30">
-            <FaSignOutAlt /> <span>Logout</span>
-          </button>
-        </div>
+      <UserHeader 
+        user={user}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        onLogout={handleLogout}
+      />
+
+      {/* Friends Section - Moved up */}
+      <div className="flex space-x-4">
+        <button
+          onClick={() => setShowFriendsModal(true)}
+          className="flex items-center space-x-2 px-6 py-3 bg-solo-dark/30 backdrop-blur-lg rounded-xl border border-solo-purple/20 hover:bg-solo-purple/10"
+        >
+          <FaUserFriends className="w-5 h-5" />
+          <span className="text-white">Friends ({user.friends?.length || 0})</span>
+        </button>
+        <button
+          onClick={() => setShowAddFriendModal(true)}
+          className="flex items-center space-x-2 px-6 py-3 bg-solo-accent/20 rounded-xl border border-solo-accent/30 hover:bg-solo-accent/30"
+        >
+          <FaUserPlus className="w-5 h-5" />
+          <span className="text-white">Add Friend</span>
+        </button>
       </div>
 
       {/* Edit Form */}
@@ -91,17 +157,69 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-solo-dark/30 backdrop-blur-lg rounded-xl border border-solo-purple/20 p-6"
         >
-          {/* Add form fields for bio, height, weight, age */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-solo-light mb-2">Bio</label>
+                <textarea
+                  name="bio"
+                  value={editForm.bio}
+                  onChange={handleChange}
+                  className="w-full bg-solo-purple/20 border border-solo-purple/30 rounded-lg px-3 py-2 text-white"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-solo-light mb-2">Age</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={editForm.age}
+                  onChange={handleChange}
+                  className="w-full bg-solo-purple/20 border border-solo-purple/30 rounded-lg px-3 py-2 text-white"
+                />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-solo-light mb-2">Height (cm)</label>
+                <input
+                  type="number"
+                  name="height"
+                  value={editForm.height}
+                  onChange={handleChange}
+                  className="w-full bg-solo-purple/20 border border-solo-purple/30 rounded-lg px-3 py-2 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-solo-light mb-2">Weight (kg)</label>
+                <input
+                  type="number"
+                  name="weight"
+                  value={editForm.weight}
+                  onChange={handleChange}
+                  className="w-full bg-solo-purple/20 border border-solo-purple/30 rounded-lg px-3 py-2 text-white"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={handleSaveDetails}
+              className="bg-solo-accent px-6 py-2 rounded-lg text-white"
+            >
+              Save Changes
+            </button>
+          </div>
         </motion.div>
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { title: 'Level', value: user.progression.level, icon: FaChartLine, color: 'from-green-500' },
-          { title: 'XP', value: user.progression.xp, icon: FaTrophy, color: 'from-yellow-500' },
-          { title: 'Current Streak', value: `${user.progression.streak} days`, icon: FaFire, color: 'from-red-500' },
-          { title: 'Workouts', value: user.stats.workoutsCompleted, icon: FaDumbbell, color: 'from-blue-500' },
+          { title: 'Level', value: user?.progression?.level || 1, icon: FaChartLine, color: 'from-green-500' },
+          { title: 'Current Streak', value: `${user?.progression?.streak || 0} days`, icon: FaFire, color: 'from-red-500' },
+          { title: 'Workouts', value: user?.stats?.workoutsCompleted || 0, icon: FaDumbbell, color: 'from-blue-500' },
         ].map((stat, index) => (
           <motion.div
             key={stat.title}
@@ -158,40 +276,43 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Friends List */}
-      <div className="bg-solo-dark/30 backdrop-blur-lg rounded-xl border border-solo-purple/20 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Friends</h2>
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={friendUsername}
-              onChange={(e) => setFriendUsername(e.target.value)}
-              placeholder="Add friend by username"
-              className="bg-solo-purple/20 border border-solo-purple/30 rounded-lg px-3 py-1 text-white"
-            />
-            <button
-              onClick={handleAddFriend}
-              className="bg-solo-accent px-3 py-1 rounded-lg text-white"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {user.friends?.map((friend) => (
-            <div key={friend.username} className="flex items-center space-x-3 p-3 bg-solo-purple/20 rounded-lg">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-solo-accent to-solo-purple flex items-center justify-center">
-                <span className="text-lg font-bold text-white">{friend.username[0].toUpperCase()}</span>
-              </div>
-              <div>
-                <p className="text-white">{friend.username}</p>
-                <p className="text-sm text-solo-light">Level {friend.level}</p>
-              </div>
+      {/* Friends Modal */}
+      {showFriendsModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-solo-dark rounded-xl border border-solo-purple/20 p-6 m-4 max-w-2xl w-full max-h-[80vh] overflow-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Friends</h2>
+              <button onClick={() => setShowFriendsModal(false)} className="text-solo-light hover:text-white">✕</button>
             </div>
-          ))}
+            
+            <div className="space-y-4">
+              {user.friends?.map((friend) => (
+                <div key={friend.username} className="flex items-center justify-between p-4 bg-solo-purple/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-solo-accent to-solo-purple flex items-center justify-center">
+                      <span className="text-lg font-bold text-white">{friend.username[0].toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <p className="text-white">{friend.username}</p>
+                      <p className="text-sm text-solo-light">Level {friend.level}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handleRemoveFriend(friend.username)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <FaUserMinus className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
-      </div>
+      )}
     </div>
   );
 } 
