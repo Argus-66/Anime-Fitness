@@ -10,11 +10,6 @@ import UserHeader from '@/components/profile/UserHeader';
 import AddFriends from '@/components/profile/AddFriends';
 import ActivityHeatmap from '@/components/profile/ActivityHeatmap';
 import DailyWorkoutGoals from '@/components/profile/DailyWorkoutGoals';
-import StatsGrid from '@/components/profile/StatsGrid';
-import FriendList from '@/components/profile/FriendList';
-import EditProfile from '@/components/profile/EditProfile';
-import QuoteCard from '@/components/profile/QuoteCard';
-import WorkoutsTimeline from '@/components/profile/WorkoutsTimeline';
 
 // Motivational quotes
 const quotes = [
