@@ -21,6 +21,15 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      gridTemplateColumns: {
+        // For the activity heatmap (26 weeks in 6 months)
+        '26': 'repeat(26, minmax(0, 1fr))',
+      },
+      boxShadow: {
+        'glow-sm': '0 0 4px rgba(82, 43, 91, 0.5)',
+        'glow': '0 0 8px rgba(82, 43, 91, 0.6)',
+        'glow-lg': '0 0 12px rgba(82, 43, 91, 0.7)',
+      },
     },
   },
   plugins: [],

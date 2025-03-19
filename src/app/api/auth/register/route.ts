@@ -34,19 +34,25 @@ export async function POST(req: Request) {
       username,
       email,
       password: hashedPassword,
-      age,
-      gender,
-      height,
-      weight,
-      joinedDate: new Date(),
-      lastLogin: new Date(),
-      theme: 'solo-leveling',
-      coins: 0,
+      bio: '',
+      details: {
+        age: parseInt(age) || 0,
+        height: parseInt(height) || 0,
+        weight: parseInt(weight) || 0
+      },
       progression: {
         level: 1,
         xp: 0,
         streak: 0
       },
+      stats: {
+        workoutsCompleted: 0,
+        bestStreak: 0
+      },
+      joinedDate: new Date(),
+      lastLogin: new Date(),
+      theme: 'solo-leveling',
+      coins: 0,
       skills: {
         strength: 1,
         agility: 1,
@@ -55,7 +61,8 @@ export async function POST(req: Request) {
       workouts: [],
       badges: [],
       friends: [],
-      cardsOwned: []
+      cardsOwned: [],
+      recentWorkouts: []
     });
 
     const { password: _, ...userWithoutPassword } = user.toObject();
